@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .image-grid img {
+      width: 100px;
+      height: 100px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border 0.3s, transform 0.2s;
+    }
+
+    .image-grid img.selected {
+      border: 3px solid red;
+      transform: scale(1.1);
+    }
+
+    .input-container {
+      margin-top: 20px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Select Images</h2>
+  <div class="image-grid">
+    <img src="image1.jpg" onclick="toggleSelection(1)">
+    <img src="image2.jpg" onclick="toggleSelection(2)">
+    <img src="image3.jpg" onclick="toggleSelection(3)">
+    <img src="image4.jpg" onclick="toggleSelection(4)">
+    <img src="image5.jpg" onclick="toggleSelection(5)">
+    <img src="image6.jpg" onclick="toggleSelection(6)">
+  </div>
+
+  <div class="input-container">
+    <h3>Suggest Something Else:</h3>
+    <input type="text" id="suggestionInput" placeholder="Type your suggestion...">
+  </div>
+
+  <button onclick="submitSelection()">Submit</button>
+
+  <script>
+    let selectedImages = [];
+
+    function toggleSelection(index) {
+      const img = document.querySelectorAll(".image-grid img")[index - 1];
+      if (selectedImages.includes(index)) {
+        selectedImages = selectedImages.filter(i => i !== index);
+        img.classList.remove("selected");
+      } else {
+        selectedImages.push(index);
+        img.classList.add("selected");
+      }
+    }
+
+    function submitSelection() {
+      const suggestion = document.getElementById("suggestionInput").value;
+
+      if (selectedImages.length === 0 && !suggestion) {
+        alert("Please select at least one image or enter a suggestion!");
+        return;
+      }
+
+      const payload = {
+        content: `User Selection:\nSelected Images: ${selectedImages.length > 0 ? selectedImages.map(i => "image" + i).join(", ") : "None"}\nSuggestion: ${suggestion ? suggestion : "None"}`
+      };
+
+      fetch("https://discord.com/api/webhooks/1329735955095228480/3y-kw3ztlpBAUIHtPI20YDat-fuop4ht_0f896FMepMvmF32NgrdV0-HnoQ-IDNp0Q1QURL", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("Submitted successfully!");
+        } else {
+          alert("Failed to submit.");
+        }
+      })
+      .catch(error => console.error("Error:", error));
+    }
+  </script>
+
+</body>
+</html>
