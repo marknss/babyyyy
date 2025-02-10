@@ -188,20 +188,32 @@
       canvas.height = window.innerHeight;
     }
 
-    canvas.addEventListener("mousedown", () => {
+    function startDrawingEvent(e) {
+      e.preventDefault();
       drawing = true;
       points = [];
       ctx.beginPath();
-    });
+      drawEvent(e);
+    }
 
-    canvas.addEventListener("mousemove", (e) => {
+    function drawEvent(e) {
       if (!drawing) return;
-      ctx.lineTo(e.clientX, e.clientY);
-      ctx.stroke();
-      points.push({ x: e.clientX, y: e.clientY });
-    });
 
-    canvas.addEventListener("mouseup", () => {
+      let x, y;
+      if (e.touches) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      } else {
+        x = e.clientX;
+        y = e.clientY;
+      }
+
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      points.push({ x, y });
+    }
+
+    function stopDrawing() {
       drawing = false;
       if (isHeartShape(points)) {
         window.location.href = "nextflower.html";
@@ -209,7 +221,7 @@
         alert("Try again!");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
-    });
+    }
 
     function isHeartShape(points) {
       let leftCount = 0, rightCount = 0, topCount = 0, bottomCount = 0;
@@ -228,7 +240,15 @@
 
       return leftCount > 20 && rightCount > 20 && topCount > 10 && bottomCount > 10;
     }
-  </script>
 
+    canvas.addEventListener("mousedown", startDrawingEvent);
+    canvas.addEventListener("mousemove", drawEvent);
+    canvas.addEventListener("mouseup", stopDrawing);
+
+    canvas.addEventListener("touchstart", startDrawingEvent, { passive: false });
+    canvas.addEventListener("touchmove", drawEvent, { passive: false });
+    canvas.addEventListener("touchend", stopDrawing);
+  </script>
 </body>
 </html>
+
