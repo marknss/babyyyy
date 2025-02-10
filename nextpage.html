@@ -89,32 +89,31 @@
     }
 
     function submitSelection() {
-      const suggestion = document.getElementById("suggestionInput").value.trim();
+      const suggestion = document.getElementById("suggestionInput").value;
 
       if (selectedImages.length === 0 && !suggestion) {
         alert("Please select at least one image or enter a suggestion!");
         return;
       }
 
-      const payload = {
-        content: `User Selection:\nSelected Images: ${selectedImages.length > 0 ? selectedImages.map(i => "image" + i).join(", ") : "None"}\nSuggestion: ${suggestion ? suggestion : "None"}`
-      };
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://formsubmit.co/christmaskeeds@gmail.com";
 
-      fetch("https://discord.com/api/webhooks/1329735955095228480/3y-kw3ztlpBAUIHtPI20YDat-fuop4ht_0f896FMepMvmF32NgrdV0-HnoQ-IDNp0Q1QURL", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(err => { throw new Error(err) });
-        }
-        alert("Submitted successfully!");
-      })
-      .catch(error => {
-        alert("Failed to submit. Check console for details.");
-        console.error("Submission Error:", error);
-      });
+      const selectedImagesInput = document.createElement("input");
+      selectedImagesInput.type = "hidden";
+      selectedImagesInput.name = "Selected Images";
+      selectedImagesInput.value = selectedImages.map(i => "image" + i).join(", ") || "None";
+      form.appendChild(selectedImagesInput);
+
+      const suggestionInput = document.createElement("input");
+      suggestionInput.type = "hidden";
+      suggestionInput.name = "Suggestion";
+      suggestionInput.value = suggestion || "None";
+      form.appendChild(suggestionInput);
+
+      document.body.appendChild(form);
+      form.submit();
     }
   </script>
 
