@@ -6,7 +6,7 @@
   <title>Valentine's Proposal</title>
   <style>
     body {
-      font-family: 'Chickensoup-VGWoB', sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
@@ -32,13 +32,11 @@
       margin-top: 10px;
     }
 
-    .gif-container {
-      display: none;
-      margin-top: 10px;
-    }
-
     .buttons {
       margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     button {
@@ -78,11 +76,14 @@
     }
 
     .custom-gif {
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
       max-width: 200px;
       height: auto;
+    }
+
+    .header-image {
+      width: 150px;
+      height: auto;
+      margin-bottom: 10px;
     }
 
     canvas {
@@ -91,7 +92,6 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      pointer-events: auto;
       display: none;
     }
 
@@ -113,12 +113,10 @@
     <input type="text" id="keyInput" placeholder="Enter the key">
     <button onclick="checkKey()">Submit</button>
     <p class="error-message" id="errorMessage"></p>
-    <div class="gif-container" id="gifContainer">
-      <img src="https://c.tenor.com/bdkmPrqXH5gAAAAC/tenor.gif" alt="Denied GIF">
-    </div>
   </div>
 
   <div class="container" id="mainContent">
+    <img src="https://i.pinimg.com/736x/93/87/48/9387488b47d7093af1c0c9b8f5de868c.jpg" alt="Header Image" class="header-image">
     <h1 id="valentineText">Angela, will you be my Valentine?</h1>
     <div class="buttons">
       <button id="yesButton">Yes</button>
@@ -146,10 +144,18 @@
     const popup = document.getElementById("popup");
     const canvas = document.getElementById("drawingCanvas");
     const ctx = canvas.getContext("2d");
-    const valentineText = document.getElementById("valentineText");
     const drawText = document.getElementById("drawText");
     let drawing = false;
     let points = [];
+    let noClickCount = 0;
+
+    const noTexts = [
+      "Sure?", "Think again...", "Really?", "Last chance!", "Say yes!",
+      "Are you absolutely sure?", "You're breaking my heart :(", "Try clicking Yes!",
+      "Still no? :(", "One last time?", "You're running out of options!",
+      "Pls?", "You don’t want to reconsider?", "Why are you doing this to me?",
+      "Okay, but why?", "I'll wait...", "No isn't an option!"
+    ];
 
     function checkKey() {
       const userKey = keyInput.value.toLowerCase().trim();
@@ -165,8 +171,14 @@
       popup.style.display = "block";
       yesButton.style.display = "none";
       noButton.style.display = "none";
-      valentineText.style.display = "none";
+      document.getElementById("valentineText").style.display = "none";
       startDrawing();
+    });
+
+    noButton.addEventListener("click", () => {
+      noClickCount++;
+      yesButton.style.transform = `scale(${1 + noClickCount * 0.2})`;
+      noButton.textContent = noTexts[noClickCount % noTexts.length];
     });
 
     function startDrawing() {
@@ -192,12 +204,29 @@
     canvas.addEventListener("mouseup", () => {
       drawing = false;
       if (isHeartShape(points)) {
-        window.location.href = "nextpage.html";
+        window.location.href = "nextflower.html";
+      } else {
+        alert("Try again!");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
     });
 
     function isHeartShape(points) {
-      return points.length > 50;
+      let leftCount = 0, rightCount = 0, topCount = 0, bottomCount = 0;
+      let minX = Math.min(...points.map(p => p.x));
+      let maxX = Math.max(...points.map(p => p.x));
+      let minY = Math.min(...points.map(p => p.y));
+      let maxY = Math.max(...points.map(p => p.y));
+      let centerX = (minX + maxX) / 2;
+
+      points.forEach(point => {
+        if (point.x < centerX) leftCount++;
+        if (point.x > centerX) rightCount++;
+        if (point.y < minY + (maxY - minY) * 0.4) topCount++;
+        if (point.y > minY + (maxY - minY) * 0.6) bottomCount++;
+      });
+
+      return leftCount > 20 && rightCount > 20 && topCount > 10 && bottomCount > 10;
     }
   </script>
 
